@@ -18,6 +18,23 @@
     if (v && v.render) v.render();
   };
 
+  function autoOn() { return RL.S && RL.S.autoServir !== false; }
+
+  /* Sirve solo cada plato listo a la mesa que lo espera (más calidad primero) */
+  function autoServir() {
+    const R = RL.R, S = RL.S;
+    if (!autoOn() || !S.listos.length) return 0;
+    let n = 0;
+    for (let i = 0; i < R.mesas.length; i++) {
+      const c = R.mesas[i];
+      if (!c || c.estado !== 'esperando') continue;
+      for (let k = 0; k < c.pedido.length; k++) if (!c.pedido[k].ok && RL.servir(i, k, true)) n++;
+    }
+    if (n) RL.sfx.ok();
+    return n;
+  }
+  RL.autoServir = autoServir;
+
   /* ---------- HUD ---------- */
   function renderHUD() {
     const S = RL.S, R = RL.R;
@@ -34,6 +51,7 @@
       '<div class="barra xp"><i style="width:' + pct + '%"></i></div></div>' +
       '<div class="hud-stats"><span class="pill monedas" id="pill-monedas">🪙 ' + RL.fmt(S.monedas) + '</span><span class="pill">⭐ ' + RL.fmt(S.puntaje) + '</span><span class="sync">' + sync + '</span></div>' +
       '<div class="hud-btns"><button class="btn icon-btn" data-act="pausa" type="button" aria-label="Pausar" title="Pausar">' + (R.pausaManual ? '▶️' : '⏸') + '</button>' +
+      '<button class="btn icon-btn' + (autoOn() ? ' on' : '') + '" data-act="auto" type="button" aria-label="Servir solo" title="Servir solo los platos listos (A)">⚡</button>' +
       '<button class="btn icon-btn" data-act="sonido" type="button" aria-label="Sonido" title="Sonido">' + (S.sonido === false ? '🔇' : '🔊') + '</button></div>';
     if (RL.pulso) {
       const p = $('#pill-monedas');
@@ -61,10 +79,14 @@
   function renderTabs() {
     const R = RL.R;
     R.dirty.tabs = false;
-    $('#tabs').innerHTML = TABS.map(function (t) {
-      const b = badgeTab(t.id);
-      return '<button class="tab ' + (R.tab === t.id ? 'activa' : '') + '" data-act="tab" data-id="' + t.id + '" type="button"><span class="ic">' + t.ic + '</span>' + t.n +
-        (b > 0 ? '<span class="punto">' + b + '</span>' : '') + '</button>';
+    const badges = TABS.map(function (t) { return badgeTab(t.id); });
+    const sig = R.tab + '|' + badges.join(',');
+    if (R.tabSig === sig) return;
+    R.tabSig = sig;
+    $('#tabs').innerHTML = TABS.map(function (t, k) {
+      const b = badges[k];
+      return '<button class="tab ' + (R.tab === t.id ? 'activa' : '') + '" data-act="tab" data-id="' + t.id + '" type="button" title="' + t.n + ' (tecla ' + (k + 1) + ')"><span class="ic">' + t.ic + '</span>' + t.n +
+        '<kbd class="atajo">' + (k + 1) + '</kbd>' + (b > 0 ? '<span class="punto">' + b + '</span>' : '') + '</button>';
     }).join('');
   }
 
@@ -173,8 +195,9 @@
 
   function renderSalon() {
     const S = RL.S;
-    let html = '<div class="pista"><span id="s-pista"></span><span class="fila"><button class="btn chico btn-lima" data-act="servirTodo" type="button">Servir todo</button>' +
-      '<button class="btn chico" data-act="tab" data-id="cocina" type="button">Ir a cocinar</button></span></div>' +
+    let html = '<div class="pista"><span id="s-pista"></span><span class="fila"><button class="btn chico btn-lima" data-act="servirTodo" type="button">Servir todo <kbd class="atajo">S</kbd></button>' +
+      '<button class="btn chico btn-mango" data-act="cobrarRapido" type="button">Cobro rápido <kbd class="atajo">Q</kbd></button>' +
+      '<button class="btn chico" data-act="tab" data-id="cocina" type="button">Cocinar <kbd class="atajo">2</kbd></button></span></div>' +
       '<div class="salon-escena"><div class="salon-pared" id="s-pared"></div><div class="salon-suelo" id="s-suelo">';
     D.ZONAS.forEach(function (z) {
       if (S.nivel < z.nivel) {
@@ -189,7 +212,7 @@
       }
     });
     html += '</div></div><div class="salon-pie"><div class="card"><h3>🧾 Caja registradora</h3><p id="s-caja" class="muted" style="margin:6px 0 8px"></p>' +
-      '<button class="btn btn-mango" data-act="atenderCaja" type="button">Atender la caja</button></div>' +
+      '<button class="btn btn-mango" data-act="atenderCaja" type="button">Atender la caja <kbd class="atajo">C</kbd></button></div>' +
       '<div class="card"><h3>Pase de platos listos</h3><div class="listos-estante" id="s-listos" style="margin-top:6px"></div></div></div>';
     $('#v-salon').innerHTML = html;
     aplicarDecor();
@@ -322,6 +345,26 @@
     if (n) { RL.sfx.ok(); RL.toast('Serviste ' + n + ' plato' + (n > 1 ? 's' : ''), 'ok'); }
     else RL.toast('No hay platos listos que coincidan con los pedidos', 'mal');
   };
+  RL.ACT.auto = function () {
+    RL.S.autoServir = !autoOn();
+    RL.sfx.click(); RL.marcar('hud');
+    RL.toast(autoOn() ? '⚡ Los platos listos se sirven solos' : 'Servicio manual: tú sirves cada plato', 'ok');
+    if (autoOn()) autoServir();
+    RL.guardar();
+  };
+  /* Cobra de una vez las mesas que pagan con tarjeta o justo (no necesitan devuelta) */
+  RL.ACT.cobrarRapido = function () {
+    const R = RL.R;
+    let n = 0, ef = 0;
+    for (let i = 0; i < R.mesas.length; i++) {
+      const c = R.mesas[i];
+      if (!c || c.estado !== 'pagar') continue;
+      if (c.pago.modo !== 'efectivo') { RL.cobrar(i, { perfecto: true }); n++; } else ef++;
+    }
+    if (n) { RL.sfx.ok(); RL.toast('Cobraste ' + n + ' mesa' + (n > 1 ? 's' : '') + (ef ? ' · ' + ef + ' en efectivo esperan devuelta' : ''), 'ok'); }
+    else if (ef) RL.ACT.atenderCaja();
+    else RL.toast('Nadie espera para pagar', '');
+  };
   RL.ACT.cobrar = function (el) { abrirCaja(parseInt(el.dataset.mesa, 10)); };
   RL.ACT.atenderCaja = function () {
     const R = RL.R;
@@ -401,6 +444,8 @@
     if (!S || !R || dt <= 0) return;
     if (dt > 0.5) dt = 0.5;
     if (RL.simActiva()) RL.tickSim(dt);
+    R.autoT = (R.autoT || 0) + dt;
+    if (R.autoT >= 0.5) { R.autoT = 0; if (RL.simActiva()) autoServir(); }
     R.liveT = (R.liveT || 0) + dt;
     if (R.liveT >= 0.2) {
       R.liveT = 0;
@@ -415,6 +460,44 @@
     if (R.guardaT >= 12) { R.guardaT = 0; RL.guardar(); }
   }
 
+  /* ---------- Atajos de teclado ---------- */
+  function atajos(e) {
+    const R = RL.R;
+    if (!RL.S || !R || e.ctrlKey || e.metaKey || e.altKey) return;
+    const tg = e.target && e.target.tagName;
+    if (tg === 'INPUT' || tg === 'TEXTAREA' || tg === 'SELECT') return;
+    const k = e.key;
+    /* dentro de la caja: 1-8 agregan billetes, Retroceso quita, Enter entrega */
+    const bandeja = document.getElementById('cj-tray');
+    if (RL.hayModal()) {
+      if (!bandeja) return;
+      if (/^[1-8]$/.test(k)) {
+        const b = document.querySelector('.denom[data-d="' + DEN[parseInt(k, 10) - 1] + '"]');
+        if (b) { e.preventDefault(); b.click(); }
+      } else if (k === 'Backspace') {
+        const q = bandeja.querySelectorAll('.denom[data-q]');
+        if (q.length) { e.preventDefault(); q[q.length - 1].click(); }
+      } else if (k === 'Enter') {
+        const bs = document.querySelectorAll('#modal .btn-mango');
+        if (bs.length) { e.preventDefault(); bs[bs.length - 1].click(); }
+      }
+      return;
+    }
+    if (R.cooking) return; /* durante los pasos de cocina Espacio/Enter son del minijuego */
+    if (R.tab === 'super' || R.tab === 'juegos') return; /* esos modos usan flechas y toques */
+    if (/^[1-8]$/.test(k)) { RL.sfx.click(); RL.irTab(TABS[parseInt(k, 10) - 1].id); return; }
+    const l = k.toLowerCase();
+    if (l === 's') RL.ACT.servirTodo();
+    else if (l === 'c') RL.ACT.atenderCaja();
+    else if (l === 'q') RL.ACT.cobrarRapido();
+    else if (l === 'a') RL.ACT.auto();
+    else if (l === 'p') RL.ACT.pausa();
+    else if (k === 'Enter' && R.tab === 'cocina' && R.cocinaResultado) {
+      const b = document.querySelector('#v-cocina .btn-mango:not(:disabled)');
+      if (b) { e.preventDefault(); b.click(); }
+    } else return;
+  }
+
   function arrancar() {
     RL.initModal();
     iniciarLogin();
@@ -424,6 +507,13 @@
       const fn = RL.ACT[el.dataset.act];
       if (fn && RL.S) fn(el, e);
     });
+    /* tocar cualquier parte de una mesa que espera pago abre la caja */
+    document.addEventListener('click', function (e) {
+      if (!RL.S || e.target.closest('[data-act]')) return;
+      const m = e.target.closest('.mesa.pagar');
+      if (m) abrirCaja(parseInt(m.id.replace('mesa-', ''), 10));
+    });
+    document.addEventListener('keydown', atajos);
     document.addEventListener('visibilitychange', function () { if (document.hidden && RL.S) RL.guardar(true, true); });
     window.addEventListener('pagehide', function () { if (RL.S) RL.guardar(true, true); });
     requestAnimationFrame(bucle);

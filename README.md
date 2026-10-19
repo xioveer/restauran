@@ -73,6 +73,14 @@ Sin este paso el juego funciona igual, pero cada jugadora conserva su progreso s
 - Si cambias de dispositivo, el juego toma la versión guardada más reciente.
 - En el perfil puedes cambiar el nombre del restaurante, personalizar tu personaje, ver el ranking y empezar de cero.
 
+## Atajos para jugar más rápido
+
+- **Servicio automático (⚡ arriba):** cada plato que terminas se sirve solo a la mesa que lo pidió. Se apaga con el botón o con **A**.
+- **Cobro rápido:** cobra de una vez todas las mesas que pagan con tarjeta o justo. En el computador, tecla **Q**.
+- Toca cualquier parte de una mesa que espera pago para abrir la caja.
+- Al terminar un plato, **Siguiente pedido** te lleva directo al próximo que se pueda cocinar (**Enter**).
+- Teclado en el computador: **1 a 8** cambian de pestaña, **S** sirve todo, **C** abre la caja, **P** pausa. Dentro de la caja, **1 a 8** agregan billetes, **Retroceso** quita el último y **Enter** entrega la devuelta.
+
 ## Cómo se juega
 
 1. Los clientes llegan al **Salón** y piden platos.

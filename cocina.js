@@ -311,6 +311,7 @@
     R.cooking = null;
     R.cocinaResultado = { rid: st.rid, q: q };
     RL.sfx.ok();
+    if (RL.autoServir) RL.autoServir();
     RL.marcar('salon'); RL.marcar('tabs'); RL.marcar('hud');
     RL.guardar();
     return rec;
@@ -332,13 +333,17 @@
   function renderResultado(root) {
     const res = RL.R.cocinaResultado, rec = D.REC[res.rid];
     const otro = !RL.faltan(rec).length;
+    const sc = RL.sinCubrir();
+    const sig = Object.keys(sc).filter(function (id) { return !RL.faltan(D.REC[id]).length; })[0];
+    const sigBtn = sig ? '<button class="btn btn-mango" data-act="cocinar" data-id="' + sig + '" type="button">Siguiente pedido ' + D.REC[sig].emoji + ' <kbd class="atajo">Enter</kbd></button>' : '';
     root.innerHTML = '<div class="estacion"><div class="resultado-plato">' + rec.emoji + '</div>' +
       '<h2 style="margin-top:6px">' + RL.esc(rec.nombre) + '</h2>' +
       '<p class="estrellas" style="font-size:1.8rem;margin:4px 0">' + RL.estrellasTxt(res.q) + '</p>' +
       '<p>Calidad <b>' + res.q + '</b> · vale <b>' + RL.fmt(RL.precioPlato(rec.id, res.q)) + ' 🪙</b></p>' +
-      '<p class="muted" style="margin-top:4px">El plato ya está en el pase, listo para servir.</p>' +
+      '<p class="muted" style="margin-top:4px">' + (RL.S.autoServir === false ? 'El plato ya está en el pase, listo para servir.' : 'Se sirve solo a la mesa que lo pidió.') + '</p>' +
       '<div class="modal-acciones">' +
-      '<button class="btn btn-mango" data-act="cocinar" data-id="' + rec.id + '" type="button"' + (otro ? '' : ' disabled') + '>Cocinar otro igual</button>' +
+      sigBtn +
+      '<button class="btn ' + (sigBtn ? '' : 'btn-mango') + '" data-act="cocinar" data-id="' + rec.id + '" type="button"' + (otro ? '' : ' disabled') + '>Otro igual' + (sigBtn ? '' : ' <kbd class="atajo">Enter</kbd>') + '</button>' +
       '<button class="btn btn-turq" data-act="tab" data-id="salon" type="button">Ir al salón</button>' +
       '<button class="btn" data-act="cocinaMenu" type="button">Más recetas</button></div></div>';
   }
@@ -354,6 +359,7 @@
     if (cat === 'pend') recetas = recetas.filter(function (r) { return sc[r.id]; });
     else if (cat !== 'todas') recetas = recetas.filter(function (r) { return r.cat === cat; });
 
+    recetas = recetas.slice().sort(function (a, b) { return (RL.faltan(a).length ? 1 : 0) - (RL.faltan(b).length ? 1 : 0); });
     let jobs = [];
     S.equipo.forEach(function (st) {
       const rt = R.staffRT[st.id];

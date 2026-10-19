@@ -378,3 +378,29 @@ small { font-weight: 700; }
 @media (min-width: 900px) {
   .super-wrap { grid-template-columns: 1.45fr 1fr; align-items: start; }
 }
+
+/* ---------- Velocidad de uso (v2) ---------- */
+html { -webkit-tap-highlight-color: transparent; }
+button, .mesa, .plato, .denom, .item-armar, .chip, .tab { touch-action: manipulation; }
+.atajo {
+  font: 400 .62rem/1 var(--titulo); background: rgba(30,42,74,.1); border: 1.5px solid rgba(30,42,74,.35);
+  border-radius: 5px; padding: 1px 4px; margin-left: 4px; vertical-align: middle; display: none;
+}
+@media (hover: hover) and (pointer: fine) { .atajo { display: inline-block; } .tab .atajo { position: absolute; top: 1px; left: 5px; margin: 0; } }
+.icon-btn.on { background: var(--mango); }
+#hud { position: sticky; top: 0; z-index: 15; background: var(--fondo); border-bottom: 2.5px solid var(--tinta); }
+.plato { width: 68px; min-height: 52px; }
+.mesa.pagar { cursor: pointer; }
+.mesa.pagar::after { content: 'Toca para cobrar'; position: absolute; bottom: -9px; right: 8px; font: 400 .68rem var(--titulo); background: var(--tinta); color: #fff; border-radius: 999px; padding: 1px 8px; }
+.tab { min-height: 54px; transition: background .12s; }
+.tab:active { transform: translateY(2px); }
+.btn:active:not(:disabled), .plato:active, .chip:active { transition: none; }
+.denom { min-width: 54px; min-height: 48px; }
+@media (max-width: 520px) {
+  #hud { padding: 6px 10px; gap: 6px; }
+  .hud-avatar { width: 42px; height: 42px; }
+  .hud-nombre, .hud-rest { max-width: 110px; }
+  .sync { display: none; }
+  .mesas { grid-template-columns: repeat(2, 1fr); }
+  .tab { font-size: .62rem; }
+}
