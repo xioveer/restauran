@@ -123,7 +123,7 @@
   /* ============================ PERFIL ============================ */
   function renderPerfil() {
     const S = RL.S;
-    let html = '<div class="vista-cab"><h2>👤 Perfil</h2><span class="tag">Puntaje ⭐ ' + RL.fmt(S.puntaje) + '</span></div>';
+    let html = '<div class="vista-cab"><h2 class="cinta">👤 Perfil</h2><span class="tag">Puntaje ⭐ ' + RL.fmt(S.puntaje) + '</span></div>';
     html += '<div class="perfil-grid"><div class="card centro"><div class="avatar-preview" id="av-prev">' + RL.avatarSVG(S.avatar) + '</div>' +
       '<h3 style="margin-top:10px">' + RL.esc(S.nombre) + '</h3><p class="muted">Chef de ' + RL.esc(S.restaurante) + '</p></div><div class="card"><h3>Tu personaje</h3>';
     Object.keys(D.COSM).forEach(function (cat) {
@@ -137,6 +137,11 @@
 
     html += '<div class="card" style="margin-top:12px"><h3>Tu restaurante</h3><div class="fila" style="margin-top:8px"><input id="rest-nombre" class="input" style="flex:1;min-width:200px" maxlength="26" value="' + RL.esc(S.restaurante) + '" aria-label="Nombre del restaurante">' +
       '<button class="btn btn-turq" data-act="guardarRest" type="button">Guardar nombre</button></div></div>';
+
+    html += '<div class="card" style="margin-top:12px"><h3>Estilo del local</h3><div class="temas" style="margin-top:8px">' + Object.keys(RL.TEMAS).map(function (k) {
+      const t = RL.TEMAS[k];
+      return '<button type="button" class="tema-card ' + ((S.tema || 'madera') === k ? 'on' : '') + '" data-act="tema" data-id="' + k + '"><span class="mini-local" style="--p:' + t.pared + ';--z:' + t.zocalo + '"><span class="mini-pared"></span><span class="mini-piso" style="background:' + t.piso + '"></span></span><b>' + t.e + ' ' + t.n + '</b></button>';
+    }).join('') + '</div></div>';
 
     const st = S.stats;
     html += '<div class="card" style="margin-top:12px"><h3>Estadísticas</h3><div class="stats-grid" style="margin-top:8px">' + [
@@ -182,6 +187,7 @@
   }
 
   RL.vistas.perfil = { render: renderPerfil };
+  RL.ACT.tema = function (el) { RL.S.tema = el.dataset.id; RL.sfx.ok(); RL.guardar(); renderPerfil(); RL.R.dirty.salon = true; };
   RL.ACT.cosm = function (el) { aviso(RL.elegirCosm(el.dataset.cat, el.dataset.id)); renderPerfil(); };
   RL.ACT.guardarRest = function () {
     const v = $('#rest-nombre').value.trim().slice(0, 26);

@@ -7,6 +7,8 @@ Funciona sin instalar nada y sin servidor propio: son archivos estáticos (HTML,
 ## Qué trae el juego
 
 - Inicio con solo el nombre de jugadora. Cada nombre es un restaurante independiente.
+- Al crear un restaurante nuevo, primero eliges cómo quieres personalizarlo: armarlo tú (personaje, ropa, nombre y estilo del local), estilos listos, sorpresa al azar o dejarlo para después.
+- Salón tipo comedor con ventanas, piso de madera, mesas con sillas y globos de pedido con barra de paciencia. Cocina tipo mostrador con estufa, horno, cafetera y platos.
 - 133 recetas en 8 categorías (desayunos, almuerzos, cenas, comidas rápidas, postres, bebidas, embutidos y fritos) con 95 ingredientes.
 - Cocina interactiva paso a paso: cortar, sartén, freidora, horno, hervir, mezclar, licuar y armar el plato.
 - Supermercado donde caminas entre estantes, llenas el carrito y pagas en la caja. Hay ofertas por pasillo.

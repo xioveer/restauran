@@ -203,13 +203,14 @@
       stats: { clientes: 0, platos: 0, cobros: 0, perdidos: 0, ventas: 0, propinas: 0, cocinados: 0, minijuegos: 0, compras: 0 },
       mini: { corte: 0, caja: 0, vuelo: 0 },
       regalo: { ultimo: '', racha: 0 }, oferta: { pasillo: '', hasta: 0 },
-      sonido: true, tutorial: false
+      sonido: true, tutorial: false, tema: 'madera', personalizado: false
     };
   }
   RL.nuevoEstado = nuevoEstado;
 
   function normalizarEstado(s) {
     const base = nuevoEstado(s.nombre || 'Jugadora', s.clave || 'jugadora');
+    if (s.personalizado === undefined && s.creado) s.personalizado = true; /* quien ya jugaba no pasa por el asistente */
     Object.keys(base).forEach(function (k) { if (s[k] === undefined) s[k] = base[k]; });
     ['stats', 'mini', 'mejoras', 'decor', 'avatar'].forEach(function (k) {
       Object.keys(base[k]).forEach(function (kk) { if (s[k][kk] === undefined) s[k][kk] = base[k][kk]; });

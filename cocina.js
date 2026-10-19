@@ -325,6 +325,7 @@
       '<div class="paso-rail">' + rec.pasos.map(function (p, i) {
         return '<span class="paso-dot ' + (i < st.i ? 'hecho' : i === st.i ? 'actual' : '') + '">' + PASO[p.tipo].emoji + ' ' + PASO[p.tipo].n + '</span>';
       }).join('') + '</div>' +
+      '<div class="cocina-escena chica">' + RL.mostradorSVG() + '</div>' +
       '<div class="estacion"><h3 id="paso-titulo"></h3><p class="muted" id="paso-ayuda"></p><div class="estacion-area" id="paso-area"></div></div>';
     const paso = rec.pasos[st.i];
     limpiar = PASOS[paso.tipo]($('#paso-area'), paso, rec, function (s) { finPaso(st, s); });
@@ -348,6 +349,35 @@
       '<button class="btn" data-act="cocinaMenu" type="button">Más recetas</button></div></div>';
   }
 
+  /* Clientes detrás del mostrador con su globo de pedido (como en la barra del restaurante) */
+  function clientesMostrador() {
+    const R = RL.R, out = [];
+    R.mesas.forEach(function (c, i) {
+      if (!c || c.estado !== 'esperando' || out.length >= 5) return;
+      const faltan = c.pedido.filter(function (it) { return !it.ok; });
+      if (!faltan.length) return;
+      const r = RL.clamp(c.pac / c.pacMax, 0, 1);
+      out.push('<div class="ck-cli" data-mesa="' + i + '"><div class="burbuja esperando"><div class="burbuja-cuerpo">' +
+        faltan.map(function (it) {
+          const rec = D.REC[it.rid];
+          return '<button type="button" class="plato ' + (RL.hayPlato(it.rid) ? 'listo' : '') + '" data-act="cocinar" data-id="' + it.rid + '" title="Cocinar ' + RL.esc(rec.nombre) + '">' + rec.emoji + '<small>' + RL.esc(rec.nombre) + '</small></button>';
+        }).join('') + '</div><div class="pac vert' + (r < 0.25 ? ' baja' : r < 0.5 ? ' med' : '') + '"><i style="height:' + (r * 100) + '%"></i></div></div>' +
+        '<span class="ck-emoji">' + c.emoji + '</span></div>');
+    });
+    return '<div class="ck-fila">' + (out.length ? out.join('') : '<div class="ck-vacio">Sin pedidos por ahora. Cocina por adelantado o espera clientes.</div>') + '</div>';
+  }
+  function liveCocina() {
+    const R = RL.R;
+    if (R.cooking || R.cocinaResultado) return;
+    document.querySelectorAll('#v-cocina .ck-cli').forEach(function (el) {
+      const c = R.mesas[parseInt(el.dataset.mesa, 10)];
+      if (!c || c.estado !== 'esperando') { RL.marcar('cocina'); return; }
+      const r = RL.clamp(c.pac / c.pacMax, 0, 1), barra = el.querySelector('.pac'), fill = el.querySelector('.pac > i');
+      if (fill) fill.style.height = (r * 100) + '%';
+      if (barra) barra.className = 'pac vert' + (r < 0.25 ? ' baja' : r < 0.5 ? ' med' : '');
+    });
+  }
+
   /* ---------- Menú de la cocina ---------- */
   function renderMenu(root) {
     const S = RL.S, R = RL.R;
@@ -366,7 +396,8 @@
       if (st.rol === 'cocinero' && rt && rt.job) jobs.push(st.nombre + ' cocina ' + D.REC[rt.job.rid].emoji + ' ' + D.REC[rt.job.rid].nombre + ' (' + Math.min(100, Math.round(rt.job.t / rt.job.dur * 100)) + '%)');
     });
 
-    let html = '<div class="vista-cab"><h2>👩‍🍳 Cocina</h2><span class="muted">Elige qué cocinar. Tú pones el punto.</span></div>';
+    let html = '<div class="vista-cab"><h2 class="cinta">👩‍🍳 Cocina</h2><span class="muted">Toca el plato de un pedido o elige una receta.</span></div>';
+    html += '<div class="cocina-escena">' + clientesMostrador() + RL.mostradorSVG() + '</div>';
     html += '<div class="card"><h3>Pedidos sin plato</h3><div class="fila" style="margin-top:6px">' +
       (idsPend.length ? idsPend.map(function (rid) {
         const r = D.REC[rid];
@@ -412,6 +443,7 @@
   RL.vistas.cocina = {
     render: render,
     salir: limpiarPaso,
+    live: liveCocina,
     refrescar: function () { if (!RL.R.cooking && !RL.R.cocinaResultado) render(); }
   };
 

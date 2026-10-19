@@ -404,3 +404,177 @@ button, .mesa, .plato, .denom, .item-armar, .chip, .tab { touch-action: manipula
   .mesas { grid-template-columns: repeat(2, 1fr); }
   .tab { font-size: .62rem; }
 }
+
+/* ===========================================================
+   v3 · Estilo comedor y mostrador (madera, crema, acero y cinta roja)
+   =========================================================== */
+:root {
+  --tinta: #3B2A2A;
+  --fondo: #F6E4C3;
+  --madera: #C98A4B;
+  --crema: #FFF6E2;
+  --cinta: #D8343B;
+  --acero: #DDE3E8;
+  --gris: #7A6A64;
+  --gris-claro: #E6D8C2;
+}
+body {
+  background-color: var(--fondo);
+  background-image: linear-gradient(rgba(255,255,255,.35), rgba(255,255,255,0) 240px), repeating-linear-gradient(90deg, rgba(201,138,75,.10) 0 60px, rgba(201,138,75,0) 60px 120px);
+  background-size: auto, auto;
+}
+
+/* botones y tarjetas con brillo */
+.btn { background-image: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0) 58%); box-shadow: 0 4px 0 var(--tinta), inset 0 2px 0 rgba(255,255,255,.65); }
+.btn:active:not(:disabled) { box-shadow: 0 0 0 var(--tinta), inset 0 2px 0 rgba(255,255,255,.4); }
+.card { border-radius: 20px; background-image: linear-gradient(180deg, #fff, #FFF9EC); box-shadow: 0 4px 0 var(--tinta), inset 0 2px 0 #fff; }
+.chip { background-image: linear-gradient(180deg, #fff, #FFF1D3); }
+.chip.on { background-image: none; }
+.receta-card { background-image: linear-gradient(180deg, #fff, #FFF6E2); }
+
+/* títulos en cinta roja */
+.vista-cab h2, .cinta {
+  position: relative; isolation: isolate; display: inline-block; margin: 6px 16px 6px 12px;
+  background: linear-gradient(180deg, #EE4B52, #C92B34); color: #fff; font-family: var(--titulo); font-weight: 400;
+  padding: 5px 24px; border: 3px solid var(--tinta); border-radius: 6px; text-shadow: 0 2px 0 rgba(0,0,0,.3); box-shadow: 0 4px 0 var(--tinta);
+}
+.vista-cab h2::before, .vista-cab h2::after, .cinta::before, .cinta::after {
+  content: ''; position: absolute; top: 9px; width: 24px; height: 100%; background: #A5202A; z-index: -1; border: 3px solid var(--tinta);
+}
+.vista-cab h2::before, .cinta::before { left: -17px; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 34% 50%); border-right: 0; }
+.vista-cab h2::after, .cinta::after { right: -17px; clip-path: polygon(0 0, 100% 0, 66% 50%, 100% 100%, 0 100%); border-left: 0; }
+h1.cinta { font-size: 1.9rem; padding: 8px 30px; margin: 10px 18px 6px; }
+
+/* HUD: insignia de nivel, monedas y botones redondos */
+#hud { background: linear-gradient(180deg, #FFF8E8, #F2D9A8); border-bottom: 3px solid var(--tinta); }
+.hud-nivel { position: relative; padding-left: 46px; }
+.insignia {
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 28%, #FFF0A0, #F4A100); filter: drop-shadow(0 2px 0 var(--tinta));
+  clip-path: polygon(50% 0, 62% 34%, 98% 36%, 69% 57%, 80% 92%, 50% 71%, 20% 92%, 31% 57%, 2% 36%, 38% 34%);
+}
+.insignia b { font: 400 .95rem var(--titulo); color: var(--tinta); margin-top: 3px; }
+.pill { background-image: linear-gradient(180deg, #fff, #FFEFC4); }
+.pill.monedas { background: linear-gradient(180deg, #FFE27A, #FFB81F); }
+.icon-btn { border-radius: 50%; width: 42px; height: 42px; }
+
+/* pestañas: íconos redondos, como los botones laterales de la referencia */
+#tabs { background: linear-gradient(180deg, #FFF8E8, #EBCF9C); }
+.tab.activa { background: transparent; border-color: transparent; box-shadow: none; }
+.tab .ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #fff; border: 2.5px solid var(--tinta); font-size: 1.2rem; box-shadow: 0 2px 0 var(--tinta); }
+.tab.activa .ic { background: linear-gradient(180deg, #FFE27A, #FFB81F); transform: translateY(-3px); box-shadow: 0 5px 0 var(--tinta); }
+.tab .punto { right: 10px; top: 0; }
+
+/* ---------- Salón: comedor con ventanas y piso de madera ---------- */
+.salon-escena { border-radius: 24px; background: var(--madera); }
+.salon-pared { position: relative; display: flex; align-items: flex-end; justify-content: space-between; padding: 14px 18px 30px; min-height: 140px; border-bottom: 3px solid var(--tinta); }
+.salon-pared::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 24px; background: var(--zocalo, #D9B98A); border-top: 3px solid rgba(59,42,42,.55); }
+.deco-centro { align-self: center; display: flex; gap: 8px; font-size: 2rem; flex-wrap: wrap; justify-content: center; z-index: 1; }
+.ventana { display: flex; gap: 3px; height: 98px; padding: 5px; background: var(--marco, #2F5D3A); border: 3px solid var(--tinta); border-radius: 10px 10px 3px 3px; box-shadow: 0 4px 0 rgba(0,0,0,.18); flex: none; }
+.ventana i { display: block; width: 26px; border-radius: 3px 3px 0 0; background: linear-gradient(155deg, rgba(255,255,255,.75) 0 16%, var(--cielo, #BFE9FF) 16%); }
+@media (max-width: 520px) { .ventana { height: 78px; } .ventana i { width: 17px; } }
+.salon-suelo { box-shadow: inset 0 16px 20px rgba(59,42,42,.30); padding: 22px 12px 12px; }
+.zona-cab { background: linear-gradient(180deg, #fff, #FFEFC4); }
+.mesas { gap: 22px 8px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.mesa { background: transparent; border: 0; box-shadow: none; padding: 0; min-height: 0; align-items: center; gap: 0; }
+.mesa.vacia { background: transparent; border: 0; justify-content: flex-end; }
+.mesa.pagar { background: transparent; animation: none; cursor: pointer; }
+.mesa.pagar::after { content: none; }
+.mesa.pagar .mesa-gfx { filter: drop-shadow(0 0 7px #FFC83D) drop-shadow(0 0 2px #FFC83D); }
+.mesa-gfx { display: block; width: 100%; max-width: 150px; height: auto; }
+.mesa .mesa-top { position: relative; justify-content: center; margin-bottom: -22px; z-index: 2; }
+.mesa .cliente { font-size: 2.7rem; filter: drop-shadow(0 3px 0 rgba(59,42,42,.35)); }
+.mesa .mood { position: absolute; right: calc(50% - 46px); top: -8px; font-size: 1.15rem; }
+.mesa .mesa-top .tag { position: absolute; left: calc(50% - 62px); top: 0; }
+.num-mesa { top: -12px; left: 2px; background: rgba(59,42,42,.88); z-index: 3; }
+.mesa-nueva { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; }
+.mesa-nueva .mesa-gfx { opacity: .75; }
+.mesa.bloq .mesa-gfx { opacity: .3; filter: grayscale(1); }
+.candado { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 1.7rem; z-index: 2; }
+
+/* globo de pedido con barra de paciencia vertical */
+.burbuja { position: relative; display: flex; align-items: stretch; gap: 6px; background: #fff; border: 3px solid var(--tinta); border-radius: 14px; padding: 5px 6px; margin-bottom: 12px; box-shadow: 0 3px 0 rgba(59,42,42,.35); max-width: 100%; z-index: 1; }
+.burbuja::after { content: ''; position: absolute; bottom: -9px; left: 50%; width: 12px; height: 12px; background: #fff; border-right: 3px solid var(--tinta); border-bottom: 3px solid var(--tinta); transform: translateX(-50%) rotate(45deg); }
+.burbuja-cuerpo { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-items: center; min-width: 40px; }
+.burbuja .plato { width: 52px; min-height: 46px; border-width: 2px; font-size: 1.35rem; }
+.burbuja .plato small { font-size: .5rem; }
+.disfruta { font-size: 1.8rem; text-align: center; padding: 0 6px; }
+.disfruta small { display: block; font-size: .6rem; font-family: var(--titulo); }
+.cobra { white-space: nowrap; }
+.pac.vert { position: relative; flex: none; width: 12px; min-height: 46px; height: auto; align-self: stretch; border: 2px solid var(--tinta); border-radius: 999px; background: #fff; overflow: hidden; }
+.pac.vert > i { position: absolute; left: 0; right: 0; bottom: 0; width: auto; height: 100%; background: linear-gradient(180deg, #8BE653, #2FB83A); transition: height .2s linear; }
+.pac.vert.med > i { background: linear-gradient(180deg, #FFE27A, #F4A100); }
+.pac.vert.baja > i { background: linear-gradient(180deg, #FF8A75, #D8343B); }
+
+/* ---------- Cocina: mostrador de acero ---------- */
+.cocina-escena { border: 3px solid var(--tinta); border-radius: 22px; overflow: hidden; margin-bottom: 14px; box-shadow: 0 5px 0 var(--tinta); background: linear-gradient(180deg, #CDEBB4 0, #A6D78B 55%, #8FC476 100%); }
+.ck-fila { display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center; align-items: flex-end; padding: 14px 10px 0; min-height: 138px; }
+.ck-cli { display: flex; align-items: flex-end; gap: 0; }
+.ck-emoji { font-size: 3.2rem; line-height: 1; margin: 0 0 -10px -4px; filter: drop-shadow(0 3px 0 rgba(0,0,0,.28)); }
+.ck-cli .burbuja { margin-bottom: 22px; align-self: flex-start; }
+.ck-cli .burbuja::after { left: auto; right: 4px; bottom: -9px; transform: rotate(45deg); }
+.ck-vacio { align-self: center; background: rgba(255,255,255,.88); border: 2.5px solid var(--tinta); border-radius: 14px; padding: 8px 14px; font-weight: 800; }
+.mostrador-svg { display: block; width: 100%; height: auto; }
+.cocina-escena.chica { background: #E9D5B3; }
+.cocina-escena.chica .mostrador-svg { max-height: 130px; }
+.estacion { background-image: linear-gradient(180deg, #fff, #E6ECF1); border-radius: 22px; }
+
+/* ---------- Asistente de personalización ---------- */
+#crear { align-items: center; }
+.crear-caja { width: 100%; max-width: 980px; margin: 0 auto; padding: 14px 14px 44px; text-align: center; }
+.crear-sub { color: var(--gris); margin: 6px 0 18px; }
+.crear-atras { display: block; margin: 0 0 6px; }
+.crear-modos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+.modo-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 20px 14px; background: linear-gradient(180deg, #fff, #FFEFC4); border: 3px solid var(--tinta); border-radius: 22px; box-shadow: 0 5px 0 var(--tinta); cursor: pointer; font: inherit; color: inherit; transition: transform .08s, box-shadow .08s; }
+.modo-card:hover { filter: brightness(1.03); }
+.modo-card:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--tinta); }
+.modo-card:focus-visible, .tema-card:focus-visible, .preset-card:focus-visible { outline: 3px solid var(--uva); outline-offset: 2px; }
+.modo-ic { font-size: 3.1rem; line-height: 1; }
+.modo-card b { font-family: var(--titulo); font-weight: 400; font-size: 1.35rem; }
+.modo-card small { color: var(--gris); font-size: .88rem; font-weight: 700; line-height: 1.25; }
+.crear-cols { display: grid; gap: 18px; grid-template-columns: 1fr; text-align: left; }
+@media (min-width: 760px) { .crear-cols { grid-template-columns: 300px 1fr; } }
+.crear-cols.una { grid-template-columns: minmax(0, 340px); justify-content: center; }
+.crear-prev { position: sticky; top: 8px; align-self: start; z-index: 2; }
+.prev-escena { position: relative; height: 280px; border: 3px solid var(--tinta); border-radius: 22px; overflow: hidden; background: var(--p); box-shadow: 0 5px 0 var(--tinta); }
+.prev-pared { position: relative; height: 56%; display: flex; justify-content: center; align-items: center; background: var(--p); }
+.prev-pared::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 20px; background: var(--z); border-top: 3px solid rgba(59,42,42,.55); }
+.prev-pared .ventana { height: 84px; margin-bottom: 18px; }
+.prev-piso { position: absolute; left: 0; right: 0; bottom: 0; height: 44%; box-shadow: inset 0 12px 14px rgba(59,42,42,.28); }
+.prev-av { position: absolute; left: 50%; bottom: -8px; width: 170px; transform: translateX(-50%); }
+.prev-av svg { display: block; width: 100%; height: auto; }
+.prev-nombre { margin-top: 10px; text-align: center; font-family: var(--titulo); font-size: 1.2rem; }
+.crear-h { font-family: var(--titulo); font-weight: 400; margin: 16px 0 6px; }
+.crear-h:first-child { margin-top: 0; }
+.temas { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.tema-card { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px; background: #fff; border: 3px solid var(--tinta); border-radius: 14px; cursor: pointer; font: inherit; color: inherit; }
+.tema-card.on { background: linear-gradient(180deg, #FFE27A, #FFB81F); box-shadow: 0 3px 0 var(--tinta); }
+.tema-card b { font-family: var(--titulo); font-weight: 400; font-size: .92rem; }
+.mini-local { position: relative; display: block; width: 100%; height: 48px; border: 2.5px solid var(--tinta); border-radius: 8px; overflow: hidden; background: var(--p); }
+.mini-pared { position: absolute; left: 0; right: 0; top: 0; height: 56%; background: var(--p); border-bottom: 7px solid var(--z); }
+.mini-piso { position: absolute; left: 0; right: 0; bottom: 0; height: 44%; }
+.presets { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.preset-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px; background: linear-gradient(180deg, #fff, #FFF3D6); border: 3px solid var(--tinta); border-radius: 18px; box-shadow: 0 4px 0 var(--tinta); cursor: pointer; font: inherit; color: inherit; }
+.preset-card.on { background: linear-gradient(180deg, #FFE27A, #FFB81F); transform: translateY(-3px); box-shadow: 0 7px 0 var(--tinta); }
+.preset-card b { font-family: var(--titulo); font-weight: 400; font-size: 1.05rem; }
+.preset-av { display: block; width: 100%; height: 132px; overflow: hidden; background: var(--mango); border: 2.5px solid var(--tinta); border-radius: 12px; }
+.preset-av svg { display: block; width: 100%; height: auto; }
+.crear-pie { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+
+/* ajustes tras revisar capturas */
+.mesa > .tag { position: absolute; top: -12px; right: 2px; z-index: 3; }
+.mesa .mesa-top .tag { position: static; }
+.burbuja .plato small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; max-width: 100%; font-size: .47rem; }
+.mostrador-svg { overflow: visible; max-width: 660px; margin: 0 auto; }
+.cocina-escena.chica .mostrador-svg { max-height: 150px; }
+#crear { justify-content: center; }
+@media (max-width: 520px) {
+  .hud-yo > span:last-child { display: none; }
+  .hud-nivel { flex: 1 1 100px; min-width: 100px; padding-left: 40px; }
+  .insignia { width: 36px; height: 36px; }
+  .hud-stats { margin-left: 0; gap: 5px; }
+  .pill { font-size: .92rem; padding: 2px 9px; }
+  .icon-btn { width: 36px; height: 36px; font-size: 1rem; }
+  #hud { gap: 6px 8px; }
+  .hud-btns { margin-left: auto; }
+}

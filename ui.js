@@ -47,7 +47,7 @@
     $('#hud').innerHTML =
       '<button class="hud-yo" data-act="tab" data-id="perfil" type="button" aria-label="Mi perfil"><span class="hud-avatar">' + RL.avatarSVG(S.avatar) + '</span>' +
       '<span style="min-width:0"><span class="hud-nombre" style="display:block">' + RL.esc(S.nombre) + '</span><span class="hud-rest" style="display:block">' + RL.esc(S.restaurante) + '</span></span></button>' +
-      '<div class="hud-nivel"><div class="hud-nivel-top"><span>Nivel ' + S.nivel + '</span><span>' + (S.nivel >= D.MAX_NIVEL ? 'Máximo' : S.xp + '/' + need + ' XP') + '</span></div>' +
+      '<div class="hud-nivel"><span class="insignia" aria-label="Nivel ' + S.nivel + '"><b>' + S.nivel + '</b></span><div class="hud-nivel-top"><span>Nivel ' + S.nivel + '</span><span>' + (S.nivel >= D.MAX_NIVEL ? 'Máximo' : S.xp + '/' + need + ' XP') + '</span></div>' +
       '<div class="barra xp"><i style="width:' + pct + '%"></i></div></div>' +
       '<div class="hud-stats"><span class="pill monedas" id="pill-monedas">🪙 ' + RL.fmt(S.monedas) + '</span><span class="pill">⭐ ' + RL.fmt(S.puntaje) + '</span><span class="sync">' + sync + '</span></div>' +
       '<div class="hud-btns"><button class="btn icon-btn" data-act="pausa" type="button" aria-label="Pausar" title="Pausar">' + (R.pausaManual ? '▶️' : '⏸') + '</button>' +
@@ -122,12 +122,14 @@
         return '<button type="button" class="plato ' + (it.ok ? 'ok' : listo ? 'listo' : '') + '" data-act="servirItem" data-mesa="' + i + '" data-item="' + k + '"' + (it.ok ? ' disabled' : '') + ' title="' + RL.esc(r.nombre) + '">' + r.emoji + '<small>' + RL.esc(r.nombre) + '</small></button>';
       }).join('') + '</div>';
     } else if (c.estado === 'comiendo') {
-      cuerpo = '<div class="centro" style="padding:10px 0">😋 Disfrutando...</div>';
+      cuerpo = '<div class="disfruta">😋<small>Comiendo</small></div>';
     } else {
-      cuerpo = '<button class="btn btn-mango" data-act="cobrar" data-mesa="' + i + '" type="button">💰 Cobrar ' + RL.fmt(c.cuenta) + '</button>';
+      cuerpo = '<button class="btn chico btn-mango cobra" data-act="cobrar" data-mesa="' + i + '" type="button">💰 ' + RL.fmt(c.cuenta) + '</button>';
     }
-    return '<span class="num-mesa">Mesa ' + (i + 1) + '</span><div class="mesa-top"><span class="cliente">' + c.emoji + '</span>' + tag + '<span class="mood">' + moodDe(c) + '</span></div>' +
-      '<div class="pac"><i></i></div>' + cuerpo;
+    return '<span class="num-mesa">Mesa ' + (i + 1) + '</span>' + tag +
+      '<div class="burbuja ' + c.estado + '"><div class="burbuja-cuerpo">' + cuerpo + '</div><div class="pac vert"><i></i></div></div>' +
+      '<div class="mesa-top"><span class="cliente">' + c.emoji + '</span><span class="mood">' + moodDe(c) + '</span></div>' +
+      RL.mesaSVG(c.estado);
   }
 
   function sigMesa(i) {
@@ -147,14 +149,14 @@
     if (el.dataset.sig === sig) return;
     el.dataset.sig = sig;
     if (i < S.mesas) {
-      if (!c) { el.className = 'mesa vacia'; el.innerHTML = '<span class="num-mesa">Mesa ' + (i + 1) + '</span><div style="font-size:2rem">🪑</div><small class="muted">Mesa libre</small>'; }
+      if (!c) { el.className = 'mesa vacia'; el.innerHTML = '<span class="num-mesa">Mesa ' + (i + 1) + '</span>' + RL.mesaSVG('libre'); }
       else { el.className = 'mesa' + (c.estado === 'pagar' ? ' pagar' : ''); el.innerHTML = htmlCliente(i, c); }
     } else if (i === S.mesas) {
       const p = RL.precioMesa(i);
       el.className = 'mesa vacia';
-      el.innerHTML = '<div style="font-size:1.8rem">➕🪑</div><small class="muted">Mesa nueva</small><button class="btn chico btn-mango" data-act="comprarMesa" type="button"' + (S.monedas >= p ? '' : ' style="opacity:.75"') + '>🪙 ' + RL.fmt(p) + '</button>';
+      el.innerHTML = '<div class="mesa-nueva">' + RL.mesaSVG('libre') + '<button class="btn chico btn-mango" data-act="comprarMesa" type="button"' + (S.monedas >= p ? '' : ' style="opacity:.75"') + '>➕ Mesa · 🪙 ' + RL.fmt(p) + '</button></div>';
     } else {
-      el.className = 'mesa vacia'; el.style.opacity = '.45'; el.innerHTML = '<div style="font-size:1.6rem">🔒</div><small class="muted">Mesa ' + (i + 1) + '</small>';
+      el.className = 'mesa vacia bloq'; el.innerHTML = '<span class="candado">🔒</span>' + RL.mesaSVG('libre');
     }
   }
 
@@ -178,11 +180,17 @@
     const pared = $('#s-pared'), suelo = $('#s-suelo');
     if (!pared || !suelo) return;
     const get = function (cat) { return D.DECOR[cat].items.filter(function (x) { return x.id === S.decor[cat]; })[0]; };
-    pared.style.background = get('pared').css;
-    suelo.style.background = get('piso').css;
-    pared.innerHTML = [get('cuadros'), get('luces'), get('plantas')].map(function (it) {
+    const tema = RL.tema();
+    const pI = get('pared'), sI = get('piso');
+    pared.style.background = pI.precio ? pI.css : tema.pared;
+    suelo.style.background = sI.precio ? sI.css : tema.piso;
+    pared.style.setProperty('--zocalo', tema.zocalo);
+    pared.style.setProperty('--marco', tema.marco);
+    pared.style.setProperty('--cielo', tema.cielo);
+    const deco = [get('cuadros'), get('luces'), get('plantas')].map(function (it) {
       return it.emoji ? '<span class="deco">' + it.emoji + '</span>' : '';
-    }).join('') || '<span class="deco muted" style="font-size:1rem">Decora tu local en Mejoras</span>';
+    }).join('');
+    pared.innerHTML = RL.ventanaHTML() + '<span class="deco-centro">' + (deco || '<span class="deco muted" style="font-size:.9rem">Decora tu local en Mejoras</span>') + '</span>' + RL.ventanaHTML();
   }
 
   function listosHTML() {
@@ -244,8 +252,8 @@
       const barra = el.querySelector('.pac'), fill = el.querySelector('.pac > i'), mood = el.querySelector('.mood');
       if (fill) {
         const r = RL.clamp(c.pac / c.pacMax, 0, 1);
-        fill.style.width = (r * 100) + '%';
-        barra.className = 'pac' + (r < 0.25 ? ' baja' : r < 0.5 ? ' med' : '');
+        fill.style.height = (r * 100) + '%';
+        barra.className = 'pac vert' + (r < 0.25 ? ' baja' : r < 0.5 ? ' med' : '');
       }
       if (mood) { const m = moodDe(c); if (mood.textContent !== m) mood.textContent = m; }
     }
@@ -412,7 +420,8 @@
     RL.cargarJugadora(nombre).then(function (s) {
       RL.S = s;
       RL.crearRuntime();
-      mostrarJuego();
+      if (!s.personalizado && RL.crear) RL.crear.abrir(mostrarJuego);
+      else mostrarJuego();
     }).catch(function () {
       err.textContent = 'No se pudo cargar. Intenta otra vez.';
     }).then(function () { btn.disabled = false; btn.textContent = '¡Entrar a mi restaurante!'; });
@@ -450,6 +459,7 @@
     if (R.liveT >= 0.2) {
       R.liveT = 0;
       if (R.tab === 'salon') liveSalon();
+      else if (R.tab === 'cocina' && RL.vistas.cocina.live) RL.vistas.cocina.live();
       R.dirty.tabs = true;
     }
     if (R.dirty.hud) renderHUD();
