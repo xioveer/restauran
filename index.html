@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#12B3A8">
+  <title>Restaurante Loco</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🍽️%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ INICIO DE SESIÓN ============ -->
+  <section id="login" class="pantalla">
+    <div class="banderines" aria-hidden="true"></div>
+    <div class="login-caja">
+      <div class="login-logo" aria-hidden="true">🍽️</div>
+      <h1 class="titulo-juego">Restaurante Loco</h1>
+      <p class="login-sub">Abre tu restaurante, cocina, cobra y haz crecer tu negocio.</p>
+      <form id="login-form" autocomplete="off">
+        <label for="login-nombre" class="login-label">Nombre de jugadora</label>
+        <input id="login-nombre" class="input grande" type="text" maxlength="18" placeholder="Escribe tu nombre" required>
+        <button class="btn btn-mango grande" type="submit">¡Entrar a mi restaurante!</button>
+        <p id="login-error" class="error-texto" role="alert"></p>
+      </form>
+      <div id="login-locales" class="login-locales"></div>
+      <p id="login-nube" class="login-nube"></p>
+    </div>
+  </section>
+
+  <!-- ============ JUEGO ============ -->
+  <section id="game" class="pantalla oculto">
+    <div class="banderines" aria-hidden="true"></div>
+    <header id="hud"></header>
+    <div id="aviso-pausa" class="aviso-pausa oculto">⏸ El restaurante está en pausa mientras compras o juegas.</div>
+    <main id="views">
+      <div class="vista" id="v-salon"></div>
+      <div class="vista oculto" id="v-cocina"></div>
+      <div class="vista oculto" id="v-super"></div>
+      <div class="vista oculto" id="v-recetas"></div>
+      <div class="vista oculto" id="v-mejoras"></div>
+      <div class="vista oculto" id="v-equipo"></div>
+      <div class="vista oculto" id="v-juegos"></div>
+      <div class="vista oculto" id="v-perfil"></div>
+    </main>
+    <nav id="tabs" aria-label="Secciones del juego"></nav>
+  </section>
+
+  <div id="toasts" aria-live="polite"></div>
+  <div id="modal" class="modal-fondo oculto" role="dialog" aria-modal="true"></div>
+</div>
+
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="core.js"></script>
+<script src="cocina.js"></script>
+<script src="super.js"></script>
+<script src="juegos.js"></script>
+<script src="vistas.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
